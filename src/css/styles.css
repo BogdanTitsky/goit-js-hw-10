@@ -18,3 +18,21 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+
+.flag {
+  width: 80px;
+  margin-right: 10px;
+}
+
+.country-item {
+  width: 300px;
+  list-style: none;
+}
+
+.country-item > div {
+  display: flex;
+}
+
+.country-item > p > span {
+  font-weight: bold;
+}
