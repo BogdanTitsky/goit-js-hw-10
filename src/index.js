@@ -26,6 +26,8 @@ function onSearch(e) {
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
+        countryList.innerHTML = '';
+        countryInfo.innerHTML = '';
       } else if (data.length >= 2 && data.length <= 10) {
         countryInfo.innerHTML = '';
         countryList.innerHTML = createMarkupCountryList(data);
