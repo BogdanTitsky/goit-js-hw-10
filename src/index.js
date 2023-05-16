@@ -9,10 +9,10 @@ const countryInfo = document.querySelector('.country-info');
 
 const DEBOUNCE_DELAY = 300;
 
-searchInput.addEventListener('input', onSearch);
+searchInput.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
 
 function onSearch(e) {
-  const inputValue = e.currentTarget.value.trim();
+  const inputValue = searchInput.value.trim();
 
   if (inputValue === '') {
     countryList.innerHTML = '';
