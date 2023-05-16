@@ -1,6 +1,7 @@
 import './css/styles.css';
-// import fetchCountries from './js/fetchCountries';
+import fetchCountries from './js/fetchCountries';
 import debounce from 'lodash.debounce';
+import Notiflix from 'notiflix';
 
 const searchInput = document.querySelector('#search-box');
 const countryList = document.querySelector('.country-list');
@@ -8,52 +9,64 @@ const countryInfo = document.querySelector('.country-info');
 
 const DEBOUNCE_DELAY = 300;
 
-searchInput.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
+searchInput.addEventListener('input', onSearch);
 
 function onSearch(e) {
-  const inputValue = e.currentTarget.value;
-  getCountries(inputValue)
-    .then(data => (countryList.innerHTML = createMarkup(data)))
-    .catch(err => console.log(err));
+  const inputValue = e.currentTarget.value.trim();
+
+  if (inputValue === '') {
+    countryList.innerHTML = '';
+    countryInfo.innerHTML = '';
+    return;
+  }
+
+  fetchCountries(inputValue)
+    .then(data => {
+      if (data.length > 10) {
+        Notiflix.Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+      } else if (data.length >= 2 && data.length <= 10) {
+        countryInfo.innerHTML = '';
+        countryList.innerHTML = createMarkupCountryList(data);
+      } else {
+        countryList.innerHTML = '';
+        countryInfo.innerHTML = createMarkupCountryInfo(data);
+      }
+    })
+    .catch(err => {
+      Notiflix.Notify.failure('Oops, there is no country with that name');
+      console.log(err);
+      countryList.innerHTML = '';
+      countryInfo.innerHTML = '';
+    });
 }
 
-function getCountries(name) {
-  return fetch(
-    `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
-  ).then(response => {
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-
-    return response.json();
-  });
+function createMarkupCountryList(arr) {
+  return arr
+    .map(
+      ({ name: { official }, flags: { svg, alt } }) => `
+      <li class="country-item ">
+          <div>
+              <img class="flag" src="${svg}" alt="${alt}" />
+              <h2>${official}</h2>
+          </div>
+      </li>
+        `
+    )
+    .join('');
 }
 
-function createMarkup(arr) {
-  if (arr.length >= 2 && arr.length <= 10) {
-    return arr
-      .map(
-        ({
-          name: { official },
-          flags: { svg, alt },
-        }) => `<li class="country-item">
-        <div>
-          <img class="flag" src="${svg}" alt="${alt}" />
-          <h2>${official}</h2>
-        </div>
-      </li>`
-      )
-      .join('');
-  } else {
-    return arr
-      .map(
-        ({
-          name: { official },
-          flags: { svg, alt },
-          capital,
-          languages,
-          population,
-        }) => `<li class="country-item">
+function createMarkupCountryInfo(arr) {
+  return arr
+    .map(
+      ({
+        name: { official },
+        flags: { svg, alt },
+        capital,
+        languages,
+        population,
+      }) => `<li class="country-item">
         <div>
           <img class="flag" src="${svg}" alt="${alt}" />
           <h2>${official}</h2>
@@ -62,9 +75,8 @@ function createMarkup(arr) {
         <p><span>population: </span>${population}</p>
         <p><span>languages: </span>${Object.values(languages).join(', ')}</p>
       </li>`
-      )
-      .join('');
-  }
+    )
+    .join('');
 }
 
 // getCountries('deutschland');

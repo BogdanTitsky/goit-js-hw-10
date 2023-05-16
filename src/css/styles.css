@@ -21,18 +21,30 @@ body {
 
 .flag {
   width: 80px;
+  height: 100%;
   margin-right: 10px;
 }
 
 .country-item {
   width: 300px;
   list-style: none;
+
+  border-color: black;
 }
 
 .country-item > div {
   display: flex;
+  align-items: center;
 }
 
 .country-item > p > span {
   font-weight: bold;
+}
+
+.country-list {
+  list-style: none;
+}
+
+.country-info {
+  display: flex;
 }
